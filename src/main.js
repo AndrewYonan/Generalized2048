@@ -11,6 +11,7 @@ var last_active_tick = 0;
 var idle_threshold = 50;
 
 
+
 init_canvas_params();
 
 board2048.add_tile(0,2,2);
@@ -35,7 +36,7 @@ function frame() {
     // console.log("(", tick, ", ", last_active_tick, ")");
     clear_canvas(canvas, ctx);
     board2048.draw();
-    board2048.update_tile_positions();
+    board2048.update_tiles();
     show_canvas_center();
     tick++;
 

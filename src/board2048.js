@@ -90,16 +90,16 @@ class Board2048 {
                     let tile = this.tile_at(i,j);
 
                     if (swipe_dir == "a") {
-                        tile.set_target_col(this.tiles_left_of(tile, board_mat));
+                        tile.set_target(i, this.tiles_left_of(tile, board_mat));
                     }
                     else if (swipe_dir == "d") {
-                        tile.set_target_col(this.cols - 1 - this.tiles_right_of(tile, board_mat));
+                        tile.set_target(i, this.cols - 1 - this.tiles_right_of(tile, board_mat));
                     }
                     else if (swipe_dir == "w") {
-                        tile.set_target_row(this.tiles_above(tile, board_mat));
+                        tile.set_target(this.tiles_above(tile, board_mat), j);
                     }
                     else if (swipe_dir == "s") {
-                        tile.set_target_row(this.rows - 1 - this.tiles_below(tile, board_mat));
+                        tile.set_target(this.rows - 1 - this.tiles_below(tile, board_mat), j);
                     }
                 }
             }
@@ -126,12 +126,22 @@ class Board2048 {
         }
     }
 
-    update_tile_positions() {
+    update_tile_scales() {
+        for (let tile of this.tiles) {
+            tile.update_scale();
+        }
+    }
+
+    update_tiles() {
+
+        this.update_tile_scales();
 
         if (this.swipe_complete) return;
 
         for (let tile of this.tiles) {
+
             tile.update_position();
+
             if (!tile.moving_to_target) {
                 if (this.tiles_in_motion.includes(tile)) {
                     this.tiles_in_motion = this.tiles_in_motion.filter(item => item !== tile);

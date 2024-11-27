@@ -6,7 +6,7 @@ const TILE_TEXT_COLOR = "#fff";
 const TILE_SIZE = 100;
 const TILE_MARGIN = 10;
 const TILE_ROUNDING = 10;
-const a = 20; // utils
+const a = 10; // utils
 const b = 1; // utils
 
 
