@@ -30,7 +30,7 @@ class Tile2048 {
         this.max_speed = 75;
         this.max_accel = 5;
         this.initial_speed = 5;
-        this.merging = false;
+        this.merge_tile = null;
     }
 
     animate_bloom() {

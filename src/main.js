@@ -14,15 +14,14 @@ var idle_threshold = 50;
 
 init_canvas_params();
 
+board2048.add_tile(0,0,4);
 board2048.add_tile(0,2,2);
-board2048.add_tile(0,3,2);
-board2048.add_tile(0,4,2);
-board2048.add_tile(0,6,2);
-board2048.add_tile(2,4,2);
-board2048.add_tile(2,2,2);
-board2048.add_tile(2,0,2);
-board2048.add_tile(4,6,4096);
-board2048.add_tile(3,1,2);
+board2048.add_tile(0,4,4);
+board2048.add_tile(0,5,4);
+board2048.add_tile(0,6,4);
+board2048.add_tile(0,7,2);
+board2048.add_tile(0,8,4);
+board2048.add_tile(0,9,4);
 
 
 
