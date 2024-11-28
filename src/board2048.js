@@ -1,23 +1,59 @@
 
+/* NOTES : set_left_adjacent_merge_tiles() implements a left-hand merge policy,
+    where matching tiles merge in pairs starting from the left.
+    Hence the correctness of the following method depends
+    on traversing the tiles from left to right while
+    assigning merge pairs (the merging status of tiles
+    on the right depend on the alread-assigned merging 
+    status of the tiles on the left)
+    
+    Q - could all 4 set_adjacent_merge_tile methods
+    be generalized into 1? (seems difficult) */
+
+
 class Board2048 {
 
-    constructor() {
+    constructor(rows, cols) {
         
-        this.rows = 5;
-        this.cols = 10;
+        this.rows = rows;
+        this.cols = cols;
         this.tiles = [];
         this.renderer = new Board2048Renderer(this);
-
         this.swipe_complete = true;
         this.tiles_in_motion = [];
 
     }
 
-    add_tile(row, col, val) {
+    take_game_turn(swipe_dir) {
+        this.swipe(swipe_dir);
+    }
+
+    finish_swipe() {
+        this.swipe_complete = true;
+        this.add_random_tile();
+    }  
+
+    add_random_tile() {
+        let board_mat = this.get_board_matrix_config();
+        let avail_spots = [];
+        for (let i = 0; i < this.rows; ++i) {
+            for (let j = 0; j < this.cols; ++j) {
+                if (board_mat[i][j] == -1) {
+                    avail_spots.push([i, j]);
+                }
+            }
+        }
+        let ranks = [2,4];
+        let rand_pos = avail_spots[randint(0, avail_spots.length - 1)];
+        let rand_rank = ranks[randint(0, ranks.length - 1)]
+        this.add_tile(rand_pos[0], rand_pos[1], rand_rank);
+    }
+
+    add_tile(row, col, val, merge_status=false) {
         row = min(row, this.rows - 1);
         col = min(col, this.cols - 1);
         if (this.tile_at(row, col) == null) {
-            this.tiles.push(new Tile2048(row, col, val, this.renderer));
+            this.tiles.push(new Tile2048(row, col, val, merge_status, this.renderer));
         }
     }
 
@@ -32,7 +68,7 @@ class Board2048 {
         let count = 0;
         let idx = tile.col - 1;
         while (idx >= 0) {
-            if (board_mat[tile.row][idx--] != -1) count++
+            if (board_mat[tile.row][idx--] != -1) count++;
         } 
         return count;
     }
@@ -45,6 +81,43 @@ class Board2048 {
         let idx = tile.col - 1;
         while (idx >= 0) {
             let cur_tile = this.tile_at(tile.row, idx--);
+            if (cur_tile != null) {
+                if (cur_tile.merge_tile == null) count++
+            }
+        } 
+        return count;
+    }
+
+    num_non_merge_tiles_right_of(tile) {
+        let count = 0;
+        let idx = tile.col + 1;
+        while (idx <= this.cols - 1) {
+            let cur_tile = this.tile_at(tile.row, idx++);
+            if (cur_tile != null) {
+                if (cur_tile.merge_tile == null) count++
+            }
+        } 
+        return count;
+    }
+
+    num_non_merge_tiles_above(tile) {
+        let count = 0;
+        let idx = tile.row - 1;
+        while (idx >= 0) {
+            let cur_tile = this.tile_at(idx--, tile.col);
+            if (cur_tile != null) {
+                if (cur_tile.merge_tile == null) count++
+            }
+        } 
+        return count;
+    }
+
+
+    num_non_merge_tiles_below(tile) {
+        let count = 0;
+        let idx = tile.row + 1;
+        while (idx <= this.rows - 1) {
+            let cur_tile = this.tile_at(idx++, tile.col);
             if (cur_tile != null) {
                 if (cur_tile.merge_tile == null) count++
             }
@@ -94,6 +167,7 @@ class Board2048 {
         return mat;
     }
 
+
     get_left_adj_tile(tile, board_mat) {
         let k = tile.col - 1;
         while (k >= 0 && board_mat[tile.row][k] == -1) --k;
@@ -101,10 +175,45 @@ class Board2048 {
         return this.tile_at(tile.row, k);
     }
 
-    /* the following method implements a left-hand merge policy,
-    where matching tiles merge in pairs starting from the left.
-    Hence the correctness of the following method depends
-    on traversing the tiles from left to right */
+    get_right_adj_tile(tile, board_mat) {
+        let k = tile.col + 1;
+        while (k <= this.cols - 1 && board_mat[tile.row][k] == -1) ++k;
+        if (k > this.cols - 1) return null;
+        return this.tile_at(tile.row, k);
+    }
+
+    get_up_adj_tile(tile, board_mat) {
+        let k = tile.row - 1;
+        while (k >= 0 && board_mat[k][tile.col] == -1) --k;
+        if (k < 0) return null;
+        return this.tile_at(k, tile.col);
+    }
+
+    get_down_adj_tile(tile, board_mat) {
+        let k = tile.row + 1;
+        while (k <= this.rows - 1 && board_mat[k][tile.col] == -1) ++k;
+        if (k > this.rows - 1) return null;
+        return this.tile_at(k, tile.col);
+    }
+
+
+    set_adjacent_merge_tiles(board_mat, dir) {
+
+        if (dir == "a") { //left
+            this.set_left_adjacent_merge_tiles(board_mat);
+        }
+        else if (dir == "d") { //right
+            this.set_right_adjacent_merge_tiles(board_mat);
+        }
+        else if (dir == "w") { //up
+            this.set_up_adjacent_merge_tiles(board_mat);
+        }
+        else if (dir == "s") { //down
+            this.set_down_adjacent_merge_tiles(board_mat);
+        }
+         
+        
+    }
 
     set_left_adjacent_merge_tiles(board_mat) {
 
@@ -126,31 +235,110 @@ class Board2048 {
                 }
             }
         }
+    }   
+
+    /* the following method, in symmetry with the last
+    must traverse the columns from right to left */
+
+    set_right_adjacent_merge_tiles(board_mat) {
+        
+        for (let i = 0; i < this.rows; ++i) {
+            for (let j = this.cols - 1; j >= 0; --j) {
+                
+                if (board_mat[i][j] == -1) continue;
+
+                let tile = this.tile_at(i, j)
+                let right_adj_tile = this.get_right_adj_tile(tile, board_mat);
+
+                if (right_adj_tile == null) continue;
+
+                if (right_adj_tile.merge_tile == null && right_adj_tile.val == tile.val) {
+                    tile.merge_tile = right_adj_tile;
+                }
+            }
+        }
     }
+
+
+    set_up_adjacent_merge_tiles(board_mat) {
+
+        for (let i = 0; i < this.rows; ++i) {
+            for (let j = 0; j < this.cols; ++j) {
+                
+                if (board_mat[i][j] == -1) continue;
+
+                let tile = this.tile_at(i, j)
+                let up_adj_tile = this.get_up_adj_tile(tile, board_mat);
+
+                if (up_adj_tile == null) continue;
+
+                if (up_adj_tile.merge_tile == null && up_adj_tile.val == tile.val) {
+                    tile.merge_tile = up_adj_tile;
+                }
+            }
+        }
+    }
+
+
+    set_down_adjacent_merge_tiles(board_mat) {
+
+        for (let i = this.rows - 1; i >= 0; --i) {
+            for (let j = 0; j < this.cols; ++j) {
+                
+                if (board_mat[i][j] == -1) continue;
+
+                let tile = this.tile_at(i, j)
+                let down_adj_tile = this.get_down_adj_tile(tile, board_mat);
+
+                if (down_adj_tile == null) continue;
+
+                if (down_adj_tile.merge_tile == null && down_adj_tile.val == tile.val) {
+                    tile.merge_tile = down_adj_tile;
+                }
+            }
+        }
+    }
+
 
 
     set_tile_dest_positions(board_mat, swipe_dir) {
 
         for (let tile of this.tiles) {
 
-            if (swipe_dir == "a") {
+            if (swipe_dir == "a") { //left
 
                 let dest_col = this.num_non_merge_tiles_left_of(tile);
 
-                if (tile.merge_tile != null) {
-                    dest_col--;
-                }
+                if (tile.merge_tile != null) dest_col--;
 
                 tile.set_target(tile.row, dest_col);
+
             }
-            else if (swipe_dir == "d") {
-                tile.set_target(tile.row, this.cols - 1 - this.tiles_right_of(tile, board_mat));
+            else if (swipe_dir == "d") { //right
+
+                let dest_col = this.cols - 1 - this.num_non_merge_tiles_right_of(tile);
+
+                if (tile.merge_tile != null) dest_col++;
+
+                tile.set_target(tile.row, dest_col);
+
             }
-            else if (swipe_dir == "w") {
-                tile.set_target(this.tiles_above(tile, board_mat), tile.col);
+            else if (swipe_dir == "w") { //up
+
+                let dest_row = this.num_non_merge_tiles_above(tile);
+
+                if (tile.merge_tile != null) dest_row--;
+
+                tile.set_target(dest_row, tile.col);
+
             }
-            else if (swipe_dir == "s") {
-                tile.set_target(this.rows - 1 - this.tiles_below(tile, board_mat), tile.col);
+            else if (swipe_dir == "s") { //down
+
+                let dest_row = this.rows - 1 - this.num_non_merge_tiles_below(tile);
+
+                if (tile.merge_tile != null) dest_row++;
+
+                tile.set_target(dest_row, tile.col);
             }
         }
     }
@@ -161,14 +349,7 @@ class Board2048 {
 
         let board_mat = this.get_board_matrix_config();
 
-
-        // this.set_left_adjacent_merge_tiles(board_mat);
-
-        // for (let tile of this.tiles) {
-        //     if (tile.merge_tile)
-        //     console.log("Tile (", tile.row, ",", tile.col, ") has left-merge tile : ", tile.merge_tile);
-        // }
-
+        this.set_adjacent_merge_tiles(board_mat, dir);
         this.set_tile_dest_positions(board_mat, dir);
 
         this.swipe_complete = false;
@@ -190,25 +371,47 @@ class Board2048 {
         }
     }
 
-    update_tiles() {
+    update_tiles_in_motion() {
 
-        this.update_tile_scales();
-
-        if (this.swipe_complete) return;
-
-        for (let tile of this.tiles) {
+        for (let tile of this.tiles_in_motion) {
 
             tile.update_position();
 
             if (!tile.moving_to_target) {
-                if (this.tiles_in_motion.includes(tile)) {
-                    this.tiles_in_motion = this.tiles_in_motion.filter(item => item !== tile);
-                }
+
+                this.tiles_in_motion = this.tiles_in_motion.filter(item => item !== tile);
+
+                if (tile.merged) {
+
+                    let i = tile.row;
+                    let j = tile.col;
+                    let val = tile.val;
+
+                    this.delete_tile(tile.merge_tile);
+                    this.delete_tile(tile); 
+
+                    this.add_tile(i, j, val*2, true);
+                } 
+                
             }
         }
+
         if (this.tiles_in_motion.length == 0) {
-            this.swipe_complete = true;
-        }
+            this.finish_swipe();
+        } 
+
+    } 
+
+    delete_tile(tile) {
+        this.tiles = this.tiles.filter(item => item !== tile);
+    }
+
+
+    update_tiles() {
+        this.update_tile_scales();
+        if (this.swipe_complete) return;
+        this.update_tiles_in_motion();
+        
     }
 
     draw() {

@@ -1,11 +1,26 @@
 
+/* merge_status - whether or not the tile was created as a result of merging */
+
+/* TRICKY ERROR : In situations involving high tile-move speeds,
+    sometimes the board will fail to place a new tile 
+    where two have merged. This is because, the board 
+    only adds a new tile to the board if there isn't a
+    tile already existing at that position. But, it
+    simply checks whether there exists a tile with
+    a particular row and column. If we don't
+    change the tile's row and column while in transit,
+    the board will thus think the tile is still occupying
+    it's original positon */
+
+
 class Tile2048 {
 
-    constructor(row, col, val, board_renderer) {
+    constructor(row, col, val, merge_status=false, board_renderer) {
 
         this.row = row;
         this.col = col;
         this.val = val;
+        this.created_from_merge = merge_status;
         this.board_renderer = board_renderer;
 
         this.target_row = row;
@@ -18,7 +33,7 @@ class Tile2048 {
         this.snap_threshold = 10;
 
         this.bloom_animation = true;
-        this.initial_bloom_size = 10;
+        this.initial_bloom_size = this.get_initial_bloom_size();
         this.bloom_threshold = 1;
         this.bloom_speed = 15;
 
@@ -27,10 +42,23 @@ class Tile2048 {
         this.accel = {x : 0, y : 0};
         this.scale = {x : this.initial_bloom_size, y : this.initial_bloom_size};
         
-        this.max_speed = 75;
+        this.max_speed = 80;
         this.max_accel = 5;
         this.initial_speed = 5;
+
         this.merge_tile = null;
+        this.merged = false;
+        this.merge_animation_counter = 0;
+        this.merge_animation = merge_status;
+    }
+
+    get_initial_bloom_size() {
+        if (this.merge_status == true) {
+            return TILE_SIZE * 0.8;
+        }
+        else {
+            return TILE_SIZE * 0.8;
+        }
     }
 
     animate_bloom() {
@@ -43,6 +71,14 @@ class Tile2048 {
             this.scale.x += (this.bloom_speed) * (1 - this.scale.x / (TILE_SIZE));
             this.scale.y += (this.bloom_speed) * (1 - this.scale.y / (TILE_SIZE));
         }
+        
+    }
+
+    animate_merge() {
+        this.merge_animation_counter++;
+        let f = 50 * quadratic_hump(this.merge_animation_counter / 12);
+        if (f == 0) this.merge_animation = false;
+        this.scale = {x : TILE_SIZE + f, y : TILE_SIZE + f};
         
     }
 
@@ -71,8 +107,9 @@ class Tile2048 {
         this.set_initial_vel();
     }
 
-
     start_moving_to_target() {
+        this.row = -2; 
+        this.col = -2;
         this.moving_to_target = true;
     }
 
@@ -112,6 +149,9 @@ class Tile2048 {
         this.row = this.target_row;
         this.col = this.target_col;
         this.moving_to_target = false;
+        if (this.merge_tile != null) {
+            this.merged= true;
+        }
     }
 
     get_board_pos(row, col) {
@@ -147,7 +187,8 @@ class Tile2048 {
     }
 
     update_scale() {
-        if (this.bloom_animation) this.animate_bloom();
+        if (this.merge_animation) this.animate_merge();
+        else if (this.bloom_animation) this.animate_bloom();
     }
 
     update_position() {

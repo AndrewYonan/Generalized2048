@@ -2,7 +2,9 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const W = 1200;
 const H = 750;
-const board2048 = new Board2048();
+const BOARD_ROWS = 5;
+const BOARD_COLS = 5;
+const board2048 = new Board2048(BOARD_ROWS, BOARD_COLS);
 
 var iterator = setInterval(frame, 16);
 var game_idle = false;
@@ -11,18 +13,8 @@ var last_active_tick = 0;
 var idle_threshold = 50;
 
 
-
 init_canvas_params();
-
-board2048.add_tile(0,0,4);
-board2048.add_tile(0,2,2);
-board2048.add_tile(0,4,4);
-board2048.add_tile(0,5,4);
-board2048.add_tile(0,6,4);
-board2048.add_tile(0,7,2);
-board2048.add_tile(0,8,4);
-board2048.add_tile(0,9,4);
-
+init_test_board_config_3();
 
 
 function frame() {
