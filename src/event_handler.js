@@ -1,5 +1,4 @@
 
-
 document.addEventListener("keydown", (event) => {
 
     let dir = get_swipe_direction(event.key);

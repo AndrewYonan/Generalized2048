@@ -34,6 +34,7 @@ class Board2048 {
     }  
 
     add_random_tile() {
+
         let board_mat = this.get_board_matrix_config();
         let avail_spots = [];
         for (let i = 0; i < this.rows; ++i) {
@@ -43,10 +44,15 @@ class Board2048 {
                 }
             }
         }
+
         let ranks = [2,4];
         let rand_pos = avail_spots[randint(0, avail_spots.length - 1)];
         let rand_rank = ranks[randint(0, ranks.length - 1)]
-        this.add_tile(rand_pos[0], rand_pos[1], rand_rank);
+
+        if (avail_spots.length > 0) {
+            this.add_tile(rand_pos[0], rand_pos[1], rand_rank);
+        }
+        
     }
 
     add_tile(row, col, val, merge_status=false) {
@@ -391,6 +397,7 @@ class Board2048 {
                     this.delete_tile(tile); 
 
                     this.add_tile(i, j, val*2, true);
+                    GLOBAL_SCORE += val*2;
                 } 
                 
             }

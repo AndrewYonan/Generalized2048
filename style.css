@@ -5,3 +5,42 @@ body {
 #canvas {
     border: 1px solid #bbb;
 }
+
+#game-score {
+    text-align: center;
+    font-size: 40px;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+#game-high-score {
+    text-align: center;
+    font-size: 50px;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+#menu {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    
+}
+
+.menu-item {
+    margin: 20px;
+    justify-content: center;
+    align-items: center;
+}
+
+#restart-button {
+    width: auto;
+    font-size: 50px;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    border: none;
+    border-radius: 10px;
+    outline: none;
+}
+
+#restart-button:hover {
+    background-color: #222;
+    color: #fff;
+}

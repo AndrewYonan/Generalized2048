@@ -1,20 +1,32 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
+const score_element = document.getElementById("game-score");
+const high_score_element = document.getElementById("game-high-score");
+const restart_button_element = document.getElementById("restart-button");
 const W = 1200;
 const H = 750;
-const BOARD_ROWS = 5;
-const BOARD_COLS = 5;
-const board2048 = new Board2048(BOARD_ROWS, BOARD_COLS);
 
+const BOARD_ROWS = 4;
+const BOARD_COLS = 7;
+var board2048;
 var iterator = setInterval(frame, 16);
 var game_idle = false;
 var tick = 0;
 var last_active_tick = 0;
 var idle_threshold = 50;
+var GLOBAL_SCORE = 0;
+var GLOBAL_HIGH_SCORE = 0;
+
+
+restart_button_element.addEventListener("click", (event) => {
+    start_new_game();
+    game_input_detected();
+});
 
 
 init_canvas_params();
-init_test_board_config_3();
+start_new_game();
+
 
 
 function frame() {
@@ -23,13 +35,43 @@ function frame() {
         stop_iterator();
         return;
     }
-
-    // console.log("(", tick, ", ", last_active_tick, ")");
     clear_canvas(canvas, ctx);
+
     board2048.draw();
     board2048.update_tiles();
-    show_canvas_center();
+    update_score();
+
     tick++;
+
+}
+
+function start_new_game() {
+
+    console.log("starting new game");
+    board2048 = new Board2048(BOARD_ROWS, BOARD_COLS);
+    tick = 0;
+    last_active_tick = 0;
+    GLOBAL_SCORE = 0;
+    init_board();
+
+}
+
+
+function init_board() {
+    board2048.add_random_tile();
+    board2048.add_random_tile();
+}
+
+
+
+function update_score() {
+
+    if (GLOBAL_SCORE > GLOBAL_HIGH_SCORE) {
+        GLOBAL_HIGH_SCORE = GLOBAL_SCORE;
+    }
+
+    score_element.innerHTML = "Score : " + GLOBAL_SCORE.toString();
+    high_score_element.innerHTML = "High Score : " + GLOBAL_HIGH_SCORE.toString();
 
 }
 
