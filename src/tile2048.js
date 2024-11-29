@@ -33,14 +33,14 @@ class Tile2048 {
         this.snap_threshold = 10;
 
         this.bloom_animation = true;
-        this.initial_bloom_size = this.get_initial_bloom_size();
+        this.initial_bloom_size = TILE_SIZE * 0.1;
         this.bloom_threshold = 1;
         this.bloom_speed = 15;
 
         this.scale = TILE_SIZE;
         this.vel = {x : 0, y : 0};
         this.accel = {x : 0, y : 0};
-        this.scale = {x : this.initial_bloom_size, y : this.initial_bloom_size};
+        this.scale = this.get_initial_scale();
         
         this.max_speed = 80;
         this.max_accel = 5;
@@ -55,14 +55,17 @@ class Tile2048 {
         this.text_color = get_tile_text_color_for_rank(this.val);
     }
 
-    get_initial_bloom_size() {
-        if (this.merge_status == true) {
-            return TILE_SIZE * 0.8;
+
+    get_initial_scale() {
+        if (this.created_from_merge) {
+            return {x : TILE_SIZE * 0.8, y : TILE_SIZE * 0.8};
         }
         else {
-            return TILE_SIZE * 0.8;
+            return {x : this.initial_bloom_size, y : this.initial_bloom_size};
         }
+        
     }
+
 
     animate_bloom() {
         if (this.scale.x >= TILE_SIZE - this.bloom_threshold && this.scale.y >= TILE_SIZE - this.bloom_threshold) {

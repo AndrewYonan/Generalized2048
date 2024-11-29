@@ -28,19 +28,21 @@ body {
     align-items: center;
 }
 
-#restart-button {
+.bttn {
     width: auto;
-    font-size: 50px;
+    font-size: 30px;
+    padding: 10px;
     font-family: Georgia, 'Times New Roman', Times, serif;
     border: none;
     border-radius: 10px;
     outline: none;
 }
 
-#restart-button:hover {
+.bttn:hover {
     background-color: #222;
     color: #fff;
 }
+
 
 #game-over-screen {
     position: absolute;
@@ -49,6 +51,9 @@ body {
     margin-left: -1000px;
     width: 2000px;
     height: 800px;
+    text-align: center;
+    color: white;
+    font-size: 120px;
     z-index: 1;
     
 }
@@ -77,8 +82,6 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    color: white;
-    font-size: 75px;
 }
 
 @keyframes fadeInOpacity {
@@ -90,3 +93,37 @@ body {
 	}
 }
 
+.dropdown {
+    position: relative; 
+    display: inline-block;
+}
+
+
+.dropdown-menu {
+    display: none; 
+    position: absolute; /* relative to the dropdown */
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 2;
+}
+
+.dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+.dropdown-menu-bttn {
+    display: block;
+    width: 100%;
+    font-size: 22px;
+    padding: 10px;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    text-align: left;
+    border: none;
+    border-radius: 2px;
+    outline: none;
+    background-color: #ffffff99;
+}
+
+.dropdown-menu-bttn:hover {
+    background: #111;
+    color: #eee;
+}

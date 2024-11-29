@@ -1,7 +1,7 @@
 
 /* NOTES : set_left_adjacent_merge_tiles() implements a left-hand merge policy,
     where matching tiles merge in pairs starting from the left.
-    Hence the correctness of the following method depends
+    Hence the correctness of the method depends
     on traversing the tiles from left to right while
     assigning merge pairs (the merging status of tiles
     on the right depend on the alread-assigned merging 

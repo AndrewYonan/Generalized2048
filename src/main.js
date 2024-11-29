@@ -1,14 +1,17 @@
+const board_select_menu = document.querySelector(".dropdown-menu");
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const score_element = document.getElementById("game-score");
 const high_score_element = document.getElementById("game-high-score");
 const restart_button_element = document.getElementById("restart-button");
 const game_over_screen = document.getElementById("game-over-screen");
+const num_board_menu_opts = get_num_board_menu_opts();
 const W = 1200;
 const H = 750;
 
-const BOARD_ROWS = 5;
-const BOARD_COLS = 5;
+var board_rows = 4;
+var board_cols = 4;
+var game_over_timeout_id;
 var board2048;
 var iterator = setInterval(frame, 16);
 var game_idle = false;
@@ -20,16 +23,55 @@ var GLOBAL_HIGH_SCORE = 0;
 var GLOBAL_GAME_OVER = false;
 
 
-restart_button_element.addEventListener("click", (event) => {
-    start_new_game();
-    game_input_detected();
-});
 
-
+set_restart_button_click_listener();
+set_board_menu_option_click_listeners();
+set_board_menu_option_ids();
 init_canvas_params();
 start_new_game();
 
 
+
+
+
+function extract_board_dimensions_from_button_text(str) {
+    const regex = /(\d+)\s*x\s*(\d+)/;
+    const match = str.match(regex);
+    if (match) return [parseInt(match[1], 10), parseInt(match[2], 10)]; 
+    return null;
+}
+
+
+function get_num_board_menu_opts() {
+    Array.from(board_select_menu.children).length;
+
+}
+
+function set_board_menu_option_ids() {
+    let menu_items = Array.from(board_select_menu.children);
+    menu_items.forEach((button, idx) => {
+        button.id = `board-${idx + 1}`;
+    });
+}
+
+function set_board_menu_option_click_listeners() {  
+    let menu_items = Array.from(board_select_menu.children);
+    menu_items.forEach(button => {
+        button.addEventListener("click", () => {
+            let board_dims = extract_board_dimensions_from_button_text(button.innerHTML);
+            board_rows = board_dims[0];
+            board_cols = board_dims[1];
+            start_new_game();
+        });
+    });
+}
+
+
+function set_restart_button_click_listener() {
+    restart_button_element.addEventListener("click", () => {
+        start_new_game();
+    });
+}
 
 function frame() {
 
@@ -38,8 +80,8 @@ function frame() {
         return;
     }
 
-    if (board2048.game_over()) {
-        setTimeout(set_end_screen_visible, 1200, true);
+    if (!GLOBAL_GAME_OVER && board2048.game_over()) {
+        game_over_timeout_id = setTimeout(set_end_screen_visible, 1200, true);
         GLOBAL_GAME_OVER = true;
     } 
 
@@ -55,31 +97,40 @@ function frame() {
 
 function start_new_game() {
 
+    GLOBAL_GAME_OVER = false;
+    cancel_game_over_screen_timeout()
     set_end_screen_visible(false);
-    board2048 = new Board2048(BOARD_ROWS, BOARD_COLS);
+    game_input_detected();
+    board2048 = new Board2048(board_rows, board_cols);
     tick = 0;
     last_active_tick = 0;
     GLOBAL_SCORE = 0;
-    GLOBAL_GAME_OVER = false;
     init_board();
 
 }
 
+function cancel_game_over_screen_timeout() {
+    if (game_over_timeout_id) {
+        clearTimeout(game_over_timeout_id);
+        game_over_timeout_id = null;
+    }
+}
+
+
 function set_end_screen_visible(bool) {
     if (bool) {
-        game_over_screen.classList.remove("hidden");
+        game_over_screen.style.display = 'block';
         game_over_screen.classList.add("visible");
     }
     else {
+        game_over_screen.style.display = 'none';
         game_over_screen.classList.remove("visible");
-        game_over_screen.classList.add("hidden");
     }
     
 }
 
 
 function init_board() {
-    //init_test_board_config_2();
     board2048.add_random_tile();
     board2048.add_random_tile();
 }
@@ -132,7 +183,6 @@ function stop_iterator() {
 }
 
 function init_canvas_params() {
-
     canvas.width = W;
     canvas.height = H;
     canvas.style.marginTop = "40px";
@@ -141,7 +191,6 @@ function init_canvas_params() {
     canvas.style.left = "50%";
     canvas.style.marginLeft = "-" + (W/2).toString() + "px";
     document.body.style.backgroundColor = BG_MAIN_COLOR;
-
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 

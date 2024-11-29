@@ -6,8 +6,16 @@ const TILE_TEXT_COLOR = "#fff";
 const TILE_SIZE = 100;
 const TILE_MARGIN = 5;
 const TILE_ROUNDING = 15;
+const THEMES = ["default", "princess-pink", "dark"];
 const a = 10; // utils
 const b = 1; // utils
+
+
+function apply_theme(theme) {
+    if (THEMES.includes(theme)) {
+        //
+    }
+}
 
 
 function clear_canvas(canvas, ctx) {
