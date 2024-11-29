@@ -22,7 +22,6 @@ function init_test_board_config_2() {
     board2048.add_tile(0,2,8);
 }
 
-// for 4x4 grid
 function init_test_board_config_3() {
     count = 0;
     for (let i = 0; i < board2048.rows; ++i) {

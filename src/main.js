@@ -7,7 +7,7 @@ const restart_button_element = document.getElementById("restart-button");
 const game_over_screen = document.getElementById("game-over-screen");
 const num_board_menu_opts = get_num_board_menu_opts();
 const W = 1200;
-const H = 750;
+const H = 600;
 
 var board_rows = 4;
 var board_cols = 4;
@@ -29,7 +29,6 @@ set_board_menu_option_click_listeners();
 set_board_menu_option_ids();
 init_canvas_params();
 start_new_game();
-
 
 
 
@@ -143,8 +142,8 @@ function update_score() {
         GLOBAL_HIGH_SCORE = GLOBAL_SCORE;
     }
 
-    score_element.innerHTML = "Score : " + GLOBAL_SCORE.toString();
-    high_score_element.innerHTML = "High Score : " + GLOBAL_HIGH_SCORE.toString();
+    score_element.innerHTML = "Score " + "<strong>" + GLOBAL_SCORE.toString() + "</strong>";
+    high_score_element.innerHTML = "High Score " + "<strong>" + GLOBAL_HIGH_SCORE.toString() + "</strong>";
 
 }
 
@@ -185,7 +184,6 @@ function stop_iterator() {
 function init_canvas_params() {
     canvas.width = W;
     canvas.height = H;
-    canvas.style.marginTop = "40px";
     canvas.style.backgroundColor = BG_MAIN_COLOR;
     canvas.style.position = "absolute";
     canvas.style.left = "50%";
