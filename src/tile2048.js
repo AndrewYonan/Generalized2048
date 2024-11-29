@@ -50,6 +50,9 @@ class Tile2048 {
         this.merged = false;
         this.merge_animation_counter = 0;
         this.merge_animation = merge_status;
+
+        this.tile_color = get_tile_color_for_rank(this.val);
+        this.text_color = get_tile_text_color_for_rank(this.val);
     }
 
     get_initial_bloom_size() {
@@ -166,7 +169,7 @@ class Tile2048 {
     }
 
     draw_tile_body() {
-        ctx.fillStyle = TILE_COLOR;
+        ctx.fillStyle = this.tile_color;
         rounded_rect(this.pos.x + TILE_SIZE/2 - this.scale.x/2, 
                     this.pos.y + TILE_SIZE/2 - this.scale.y/2, 
                     this.scale.x, 
@@ -177,7 +180,7 @@ class Tile2048 {
 
     draw_tile_number() {
         ctx.font = this.get_tile_font_size().toString() + "px serif";
-        ctx.fillStyle = TILE_TEXT_COLOR;
+        ctx.fillStyle = this.text_color;
         ctx.fillText(this.val.toString(), this.pos.x + TILE_SIZE/2, this.pos.y + TILE_SIZE/2); 
     }
 

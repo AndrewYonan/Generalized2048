@@ -55,6 +55,41 @@ class Board2048 {
         
     }
 
+    is_adjacent(tile_1, tile_2) {
+        if (tile_1 == null || tile_2 == null) return false;
+        return ((tile_1.row == tile_2.row) && (Math.abs(tile_1.col - tile_2.col) == 1)) ||
+                ((tile_1.col == tile_2.col) && (Math.abs(tile_1.row - tile_2.row) == 1));
+    }
+
+    can_merge(tile_1, tile_2) {
+        if (tile_1 == null || tile_2 == null) return false;
+        return this.is_adjacent(tile_1, tile_2) && (tile_1.val == tile_2.val);
+    }
+
+    immediate_adj(tile, dir) {
+        if (dir == "left") return this.tile_at(tile.row, tile.col - 1);
+        else if (dir == "right") return this.tile_at(tile.row, tile.col + 1);
+        else if (dir == "up") return this.tile_at(tile.row - 1, tile.col);
+        else if (dir == "down") return this.tile_at(tile.row + 1, tile.col);
+    }
+
+    game_over() {
+
+        if (this.swipe_complete == false) return false;
+        if (this.tiles.length < this.rows * this.cols) return false;
+
+        for (let tile of this.tiles) {
+
+            if (this.can_merge(tile, this.immediate_adj(tile, "left"))) return false;
+            if (this.can_merge(tile, this.immediate_adj(tile, "right"))) return false;
+            if (this.can_merge(tile, this.immediate_adj(tile, "up"))) return false;
+            if (this.can_merge(tile, this.immediate_adj(tile, "down"))) return false;
+
+        }
+
+        return true;
+    }
+
     add_tile(row, col, val, merge_status=false) {
         row = min(row, this.rows - 1);
         col = min(col, this.cols - 1);
@@ -78,9 +113,6 @@ class Board2048 {
         } 
         return count;
     }
-
-    /* returns the number of non-merge tiles (tiles whose merge_tile field is null) 
-    to the left of <tile>*/
 
     num_non_merge_tiles_left_of(tile) {
         let count = 0;
@@ -243,9 +275,6 @@ class Board2048 {
         }
     }   
 
-    /* the following method, in symmetry with the last
-    must traverse the columns from right to left */
-
     set_right_adjacent_merge_tiles(board_mat) {
         
         for (let i = 0; i < this.rows; ++i) {
@@ -307,7 +336,7 @@ class Board2048 {
 
 
 
-    set_tile_dest_positions(board_mat, swipe_dir) {
+    set_tile_dest_positions(swipe_dir) {
 
         for (let tile of this.tiles) {
 
@@ -356,7 +385,7 @@ class Board2048 {
         let board_mat = this.get_board_matrix_config();
 
         this.set_adjacent_merge_tiles(board_mat, dir);
-        this.set_tile_dest_positions(board_mat, dir);
+        this.set_tile_dest_positions(dir);
 
         this.swipe_complete = false;
         this.initiate_tile_swipe();

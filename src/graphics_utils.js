@@ -5,7 +5,7 @@ const TILE_COLOR = "#c44";
 const TILE_TEXT_COLOR = "#fff";
 const TILE_SIZE = 100;
 const TILE_MARGIN = 5;
-const TILE_ROUNDING = 10;
+const TILE_ROUNDING = 15;
 const a = 10; // utils
 const b = 1; // utils
 
@@ -20,6 +20,31 @@ function show_canvas_center() {
     ctx.rect(W/2 - a, H/2 - b, 2*a, 2*b);
     ctx.rect(W/2 - b, H/2 - a, 2*b, 2*a);
     ctx.fill();
+}
+
+function get_tile_color_for_rank(rank) {
+    let param = Math.min(15 * Math.log2(rank), 255);
+    let r = param;
+    let g = param;
+    let b = param;
+    return "rgb(" + r.toString() + ", " + g.toString() + ", " + b.toString() + ")";
+}
+
+function get_tile_text_color_for_rank(rank) {
+    let r;
+    let g;
+    let b;
+    if (Math.log2(rank) > 9) {
+        r = 10;
+        g = 10;
+        b = 10;
+    }
+    else {
+        r = 255;
+        g = 255;
+        b = 255
+    }
+    return "rgb(" + r.toString() + ", " + g.toString() + ", " + b.toString() + ")";
 }
 
 function rounded_rect(x, y, width, height, border_radius) {
