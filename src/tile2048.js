@@ -33,7 +33,7 @@ class Tile2048 {
         this.snap_threshold = 10;
 
         this.bloom_animation = true;
-        this.initial_bloom_size = TILE_SIZE * 0.1;
+        this.initial_bloom_size = TILE_SIZE * 0.8;
         this.bloom_threshold = 1;
         this.bloom_speed = 15;
 
@@ -47,7 +47,7 @@ class Tile2048 {
         this.initial_speed = 5;
 
         this.merge_tile = null;
-        this.merged = false;
+        this.within_merging_range = false;
         this.merge_animation_counter = 0;
         this.merge_animation = merge_status;
 
@@ -156,7 +156,7 @@ class Tile2048 {
         this.col = this.target_col;
         this.moving_to_target = false;
         if (this.merge_tile != null) {
-            this.merged= true;
+            this.within_merging_range = true;
         }
     }
 
@@ -195,6 +195,19 @@ class Tile2048 {
     update_scale() {
         if (this.merge_animation) this.animate_merge();
         else if (this.bloom_animation) this.animate_bloom();
+    }
+
+    update_speed() {
+        if (AUTO_TURNS) {
+            this.max_speed = 150;
+            this.max_accel = 5;
+            this.initial_speed = 5;
+        }
+        else {
+            this.max_speed = 80;
+            this.max_accel = 5;
+            this.initial_speed = 5;
+        }
     }
 
     update_position() {

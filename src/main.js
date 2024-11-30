@@ -1,9 +1,10 @@
-const board_select_menu = document.querySelector(".dropdown-menu");
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const score_element = document.getElementById("game-score");
 const high_score_element = document.getElementById("game-high-score");
 const restart_button_element = document.getElementById("restart-button");
+const auto_mode_toggle_bttn = document.getElementById("auto-mode-toggle");
+const board_select_menu = document.querySelector(".dropdown-menu");
 const game_over_screen = document.getElementById("game-over-screen");
 const num_board_menu_opts = get_num_board_menu_opts();
 const W = 1200;
@@ -21,10 +22,11 @@ var idle_threshold = 50;
 var GLOBAL_SCORE = 0;
 var GLOBAL_HIGH_SCORE = 0;
 var GLOBAL_GAME_OVER = false;
+var AUTO_TURNS = false;
 
 
 
-set_restart_button_click_listener();
+set_game_opt_event_listeners();
 set_board_menu_option_click_listeners();
 set_board_menu_option_ids();
 init_canvas_params();
@@ -66,9 +68,22 @@ function set_board_menu_option_click_listeners() {
 }
 
 
-function set_restart_button_click_listener() {
+function set_game_opt_event_listeners() {
+
     restart_button_element.addEventListener("click", () => {
         start_new_game();
+    });
+
+    auto_mode_toggle_bttn.addEventListener("click", () => {
+        if (AUTO_TURNS) {
+            auto_mode_toggle_bttn.innerHTML = "Auto Mode";
+            AUTO_TURNS = false;
+        }
+        else {
+            auto_mode_toggle_bttn.innerHTML = "Regular Mode";
+            AUTO_TURNS = true;
+            board2048.take_auto_turn();
+        }
     });
 }
 

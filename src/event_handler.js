@@ -1,9 +1,10 @@
 
 document.addEventListener("keydown", (event) => {
 
+    if (AUTO_TURNS) return;
+
     let dir = get_swipe_direction(event.key);
     if (dir != "~") {
-        game_input_detected();
         board2048.take_game_turn(dir);
     } 
 });

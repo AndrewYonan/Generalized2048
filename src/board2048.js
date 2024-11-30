@@ -22,15 +22,28 @@ class Board2048 {
         this.swipe_complete = true;
         this.tiles_in_motion = [];
 
+        this.auto_turn_sequence = ["a", "w", "d", "s"];
+        this.auto_turn_idx = 0;
+
+        if (AUTO_TURNS) this.take_auto_turn();
+
     }
 
     take_game_turn(swipe_dir) {
+        game_input_detected();
         this.swipe(swipe_dir);
+    }
+
+    take_auto_turn() {
+        if (this.game_over()) return;
+        this.take_game_turn(this.auto_turn_sequence[(this.auto_turn_idx++) % this.auto_turn_sequence.length]);
     }
 
     finish_swipe() {
         this.swipe_complete = true;
         this.add_random_tile();
+        if (AUTO_TURNS) this.take_auto_turn();
+        
     }  
 
     add_random_tile() {
@@ -63,7 +76,7 @@ class Board2048 {
 
     can_merge(tile_1, tile_2) {
         if (tile_1 == null || tile_2 == null) return false;
-        return this.is_adjacent(tile_1, tile_2) && (tile_1.val == tile_2.val);
+        return (tile_1.val == tile_2.val);
     }
 
     immediate_adj(tile, dir) {
@@ -265,10 +278,7 @@ class Board2048 {
 
                 if (left_adj_tile == null) continue;
 
-                /* only set left_adj_tile as the merge tile of "tile" 
-                if adj isn't already merging into another tile */
-
-                if (left_adj_tile.merge_tile == null && left_adj_tile.val == tile.val) {
+                if (left_adj_tile.merge_tile == null && this.can_merge(left_adj_tile, tile)) {
                     tile.merge_tile = left_adj_tile;
                 }
             }
@@ -287,7 +297,7 @@ class Board2048 {
 
                 if (right_adj_tile == null) continue;
 
-                if (right_adj_tile.merge_tile == null && right_adj_tile.val == tile.val) {
+                if (right_adj_tile.merge_tile == null && this.can_merge(right_adj_tile, tile)) {
                     tile.merge_tile = right_adj_tile;
                 }
             }
@@ -307,7 +317,7 @@ class Board2048 {
 
                 if (up_adj_tile == null) continue;
 
-                if (up_adj_tile.merge_tile == null && up_adj_tile.val == tile.val) {
+                if (up_adj_tile.merge_tile == null && this.can_merge(up_adj_tile, tile)) {
                     tile.merge_tile = up_adj_tile;
                 }
             }
@@ -327,7 +337,7 @@ class Board2048 {
 
                 if (down_adj_tile == null) continue;
 
-                if (down_adj_tile.merge_tile == null && down_adj_tile.val == tile.val) {
+                if (down_adj_tile.merge_tile == null && this.can_merge(down_adj_tile, tile)) {
                     tile.merge_tile = down_adj_tile;
                 }
             }
@@ -406,6 +416,32 @@ class Board2048 {
         }
     }
 
+    update_tile_speeds() {
+        for (let tile of this.tiles) {
+            tile.update_speed();
+        }
+    }
+
+    /* merges tile_1 into tile_2 */
+
+    merge(tile_1, tile_2) {
+
+        if (tile_1 == null || tile_2 == null) return;
+
+        let i = tile_1.row;
+        let j = tile_1.col;
+        let val_1 = tile_1.val;
+        let val_2 = tile_2.val;
+        let new_val = val_1 + val_2;
+
+        this.delete_tile(tile_1);
+        this.delete_tile(tile_2); 
+
+        this.add_tile(i, j, new_val, true);
+        GLOBAL_SCORE += new_val;
+
+    }
+
     update_tiles_in_motion() {
 
         for (let tile of this.tiles_in_motion) {
@@ -416,19 +452,7 @@ class Board2048 {
 
                 this.tiles_in_motion = this.tiles_in_motion.filter(item => item !== tile);
 
-                if (tile.merged) {
-
-                    let i = tile.row;
-                    let j = tile.col;
-                    let val = tile.val;
-
-                    this.delete_tile(tile.merge_tile);
-                    this.delete_tile(tile); 
-
-                    this.add_tile(i, j, val*2, true);
-                    GLOBAL_SCORE += val*2;
-                } 
-                
+                if (tile.within_merging_range) this.merge(tile, tile.merge_tile);
             }
         }
 
@@ -445,9 +469,9 @@ class Board2048 {
 
     update_tiles() {
         this.update_tile_scales();
+        this.update_tile_speeds();
         if (this.swipe_complete) return;
         this.update_tiles_in_motion();
-        
     }
 
     draw() {
