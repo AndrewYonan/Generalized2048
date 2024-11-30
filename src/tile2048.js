@@ -221,7 +221,7 @@ class Tile2048 {
         }
         else {
             this.move_to_target();
-            this.snap_threshold = Math.sqrt(this.get_speed_squared());
+            this.snap_threshold = Math.sqrt(this.get_speed_squared()) / 1.1;
         }
     }
 }
